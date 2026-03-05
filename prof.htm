@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shahd Salah | UI/UX Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif']
+                    },
+                    colors: {
+                        'brand-orange': '#FF6B35',
+                        'brand-orange-light': '#FF8C61',
+                        'brand-beige': '#FDF8F3',
+                        'brand-dark': '#0A0A0A',
+                        'brand-gray': '#1A1A1A',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: #FDF8F3; 
+            color: #0A0A0A; 
+            overflow-x: hidden;
+            cursor: none;
+        }
+        
+        /* Custom Cursor */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .cursor-dot {
+            width: 5px;
+            height: 5px;
+            background-color: #FF6B35;
+        }
+        .cursor-outline {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #FF6B35;
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+        
+        /* Grain Texture */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 53, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        
+        /* Hero Arch */
+        .arch-frame {
+            width: 320px;
+            height: 420px;
+            border-radius: 160px 160px 20px 20px;
+            overflow: hidden;
+            position: relative;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 25px 50px -12px rgba(255, 107, 53, 0.25),
+                0 0 0 1px rgba(255, 107, 53, 0.1);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .arch-frame:hover {
+            transform: scale(1.02) rotate(1deg);
+        }
+        .arch-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .arch-frame:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Magnetic Button */
+        .magnetic-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .magnetic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .magnetic-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Skill Orbs */
+        .skill-orb {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+            border-radius: 24px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 107, 53, 0.08);
+            overflow: hidden;
+        }
+        .skill-orb::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .skill-orb:hover::before {
+            opacity: 1;
+        }
+        .skill-orb:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(255, 107, 53, 0.2);
+        }
+        
+        /* Project Cards 3D - Smaller Images */
+        .project-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .project-card:hover {
+            transform: translateY(-12px) rotateX(2deg);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.15);
+        }
+        .project-card .project-image {
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9; /* Changed from 4/3 to 16/9 for smaller height */
+        }
+        .project-card .project-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(255,107,53,0.9), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .project-card:hover .project-image::after {
+            opacity: 0.8;
+        }
+        .project-card img {
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .project-card:hover img {
+            transform: scale(1.15);
+        }
+        
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #FF6B35;
+            transform: translateX(-101%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-link:hover::after {
+            transform: translateX(0);
+        }
+        
+        /* Scroll Progress */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, #FF6B35, #FF8C61);
+            z-index: 9999;
+            transition: width 0.1s;
+        }
+        
+        /* Gradient Orbs Background */
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        /* Mobile Cursor Disable */
+        @media (pointer: coarse) {
+            body { cursor: auto; }
+            .cursor-dot, .cursor-outline { display: none; }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-brand-orange selection:text-white">
+
+    <!-- Grain Overlay -->
+    <div class="grain"></div>
+    
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+    
+    <!-- Custom Cursor -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-500" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="text-2xl font-display font-bold tracking-tighter text-brand-dark group cursor-pointer">
+                    SH<span class="text-brand-orange group-hover:rotate-180 inline-block transition-transform duration-500">.</span>SALAH
+                </div>
+                
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#about" class="nav-link text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/70 hover:text-brand-orange transition-colors py-2">About</a>
+                    <a href="#skills" class="nav-link text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/70 hover:text-brand-orange transition-colors py-2">Skills</a>
+                    <a href="#projects" class="nav-link text-xs font-semibold uppercase tracking-[0.2em] text-brand-dark/70 hover:text-brand-orange transition-colors py-2">Projects</a>
+                    <a href="#contact" class="magnetic-btn bg-brand-dark text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-brand-orange transition-colors">
+                        Let's Talk
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-2xl text-brand-dark" id="mobileMenuBtn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="md:hidden fixed inset-0 bg-brand-beige z-40 transform translate-x-full transition-transform duration-500" id="mobileMenu">
+            <div class="flex flex-col items-center justify-center h-full gap-8">
+                <a href="#about" class="text-2xl font-display font-bold text-brand-dark mobile-link">About</a>
+                <a href="#skills" class="text-2xl font-display font-bold text-brand-dark mobile-link">Skills</a>
+                <a href="#projects" class="text-2xl font-display font-bold text-brand-dark mobile-link">Projects</a>
+                <a href="#contact" class="text-2xl font-display font-bold text-brand-orange mobile-link">Contact</a>
+            </div>
+            <button class="absolute top-6 right-6 text-3xl text-brand-dark" id="closeMobileMenu">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center overflow-hidden pt-20">
+        <!-- Background Elements -->
+        <div class="gradient-orb w-96 h-96 bg-brand-orange/30 top-20 -left-20 animate-float"></div>
+        <div class="gradient-orb w-64 h-64 bg-purple-400/20 bottom-20 right-10 animate-float-delayed"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 w-full relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                
+                <!-- Text Content -->
+                <div class="space-y-8 order-2 lg:order-1">
+                    <div class="space-y-4 overflow-hidden">
+                        <p class="text-brand-orange font-medium tracking-widest uppercase text-sm opacity-0" id="heroSubtitle">
+                            Hi, I am
+                        </p>
+                        <h1 class="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-brand-dark leading-[0.9] tracking-tight">
+                            <div class="overflow-hidden">
+                                <span class="inline-block transform translate-y-full opacity-0" id="heroName1">Shahd</span>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="inline-block transform translate-y-full opacity-0 text-brand-orange" id="heroName2">Salah</span>
+                            </div>
+                        </h1>
+                    </div>
+                    
+                    <p class="text-xl md:text-2xl font-light text-brand-dark/70 max-w-lg leading-relaxed opacity-0 transform translate-y-4" id="heroDesc">
+                        <span class="text-brand-orange font-medium">UI/UX Designer</span><br>
+                        Bridging the gap between <span class="font-semibold text-brand-dark">Accounting logic</span> and <span class="font-semibold text-brand-dark">Creative design</span> to build digital experiences that matter.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 opacity-0 transform translate-y-4" id="heroButtons">
+                        <a href="#projects" class="magnetic-btn group bg-brand-orange text-white px-8 py-4 rounded-full font-semibold shadow-lg shadow-brand-orange/30 hover:shadow-xl hover:shadow-brand-orange/40 transition-all">
+                            View Work
+                            <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                        <a href="#contact" class="magnetic-btn border-2 border-brand-dark/10 text-brand-dark px-8 py-4 rounded-full font-semibold hover:border-brand-orange hover:text-brand-orange transition-all">
+                            Contact Me
+                        </a>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="flex gap-8 pt-8 border-t border-brand-dark/10 opacity-0" id="heroStats">
+                        <div>
+                            <p class="text-3xl font-display font-bold text-brand-dark">1+</p>
+                            <p class="text-xs text-brand-dark/50 uppercase tracking-wider">Years Exp.</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-display font-bold text-brand-dark">3+</p>
+                            <p class="text-xs text-brand-dark/50 uppercase tracking-wider">Projects</p>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-display font-bold text-brand-dark">3+</p>
+                            <p class="text-xs text-brand-dark/50 uppercase tracking-wider">Trainee</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image -->
+                 <!-- Image -->
+                <div class="order-1 lg:order-2 flex justify-center lg:justify-end relative">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-brand-orange/20 rounded-full blur-[100px] transform scale-75"></div>
+                        
+                        <div class="absolute -top-12 -left-12 w-24 h-24 border-2 border-brand-orange/30 rounded-full animate-spin-slow"></div>
+                        
+                        <div class="arch-frame relative z-10 w-[380px] h-[550px] md:w-[480px] md:h-[650px] overflow-hidden bg-transparent" 
+                             id="heroImage" 
+                             style="border-radius: 240px 240px 30px 30px;">
+                            
+                            <img src="my photo .png" alt="Shahd Salah" 
+                                 class="w-full h-full object-cover transition-all duration-700"
+                                 style="filter: drop-shadow(0 20px 30px rgba(255, 107, 53, 0.4));">
+                            
+                            <div class="absolute bottom-12 -left-8 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-[0_10px_30px_rgba(255,107,53,0.1)] animate-float z-20 border border-brand-orange/20">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-brand-orange/10 rounded-full flex items-center justify-center text-brand-orange font-bold text-xl">
+                                        ✦
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-brand-dark/40 uppercase tracking-[2px] font-bold">Status</p>
+                                        <p class="font-bold text-brand-dark text-lg">Available for All Work</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+            <span class="text-[9px] uppercase tracking-widest font-bold text-brand-dark">Scroll</span>
+            <div class="animate-bounce">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 13L12 18L17 13M7 6L12 11L17 6" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section - Smaller Font -->
+    <section id="about" class="py-32 relative overflow-hidden">
+        <div class="max-w-5xl mx-auto px-6 lg:px-8 relative z-10">
+            <div class="text-center space-y-8">
+                <span class="inline-block px-4 py-2 bg-brand-orange/10 text-brand-orange rounded-full text-xs font-bold uppercase tracking-widest mb-4 about-elem">Philosophy</span>
+                
+                <!-- Changed from text-3xl md:text-5xl lg:text-6xl to text-2xl md:text-3xl lg:text-4xl -->
+                <h2 class="text-2xl md:text-3xl lg:text-4xl font-display font-light leading-tight text-brand-dark about-elem" id="aboutText">
+                    "I leverage my background in <span class="font-semibold">Business & Data Analysis</span> to craft interfaces that transcend aesthetics—creating strategic digital solutions aligned with <span class="text-brand-orange italic">user objectives</span>."
+                </h2>
+                
+                <!-- الخطوط الملونة اللي تحت -->
+                <div class="flex justify-center gap-4 pt-8 about-elem" id="aboutLines">
+                    <div class="h-1 w-16 bg-brand-orange rounded-full about-line"></div>
+                    <div class="h-1 w-8 bg-brand-dark/20 rounded-full about-line"></div>
+                    <div class="h-1 w-4 bg-brand-dark/10 rounded-full about-line"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-32 bg-white relative">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-6">
+                <div>
+                    <span class="text-brand-orange font-bold tracking-widest uppercase text-xs mb-4 block">Capabilities</span>
+                    <h2 class="text-4xl md:text-6xl font-display font-bold text-brand-dark">Expertise</h2>
+                    <br>
+                    <p class="text-brand-dark/50 max-w-md text-lg">Combining analytical thinking with creative execution to deliver comprehensive design solutions.</p>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Technical Skills -->
+                <div class="space-y-6">
+                    <h3 class="text-sm font-bold uppercase tracking-[0.2em] text-brand-dark/40 mb-8 flex items-center gap-3">
+                        <span class="w-8 h-px bg-brand-orange"></span>
+                        Technical Arsenal
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="skill-orb group cursor-pointer">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-brands fa-figma"></i>
+                            </div>
+                            <h4 class="font-bold text-brand-dark mb-1">Figma</h4>
+                            <p class="text-xs text-brand-dark/50">Prototyping & Systems</p>
+                        </div>
+                        
+                        <div class="skill-orb group cursor-pointer">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h4 class="font-bold text-brand-dark mb-1">Adobe Suite</h4>
+                            <p class="text-xs text-brand-dark/50">Ps / Ai / Xd</p>
+                        </div>
+                        
+                        <div class="skill-orb group cursor-pointer">
+                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                            <h4 class="font-bold text-brand-dark mb-1">Data Analysis</h4>
+                            <p class="text-xs text-brand-dark/50">Research & Insights</p>
+                        </div>
+                        
+                        <div class="skill-orb group cursor-pointer">
+                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-brands fa-html5"></i>
+                            </div>
+                            <h4 class="font-bold text-brand-dark mb-1">Frontend</h4>
+                            <p class="text-xs text-brand-dark/50">HTML / CSS</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soft Skills -->
+                <div class="space-y-6">
+                    <h3 class="text-sm font-bold uppercase tracking-[0.2em] text-brand-dark/40 mb-8 flex items-center gap-3">
+                        <span class="w-8 h-px bg-brand-orange"></span>
+                        Professional Skills
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="group flex items-center gap-6 p-6 rounded-2xl bg-brand-beige hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border border-transparent hover:border-brand-orange/10">
+                            <span class="text-4xl font-display font-bold text-brand-orange/20 group-hover:text-brand-orange group-hover:scale-110 transition-all">01</span>
+                            <div>
+                                <h4 class="font-bold text-brand-dark text-lg mb-1">Strategic Thinking</h4>
+                                <p class="text-sm text-brand-dark/50">Result-oriented approach to design decisions</p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right ml-auto text-brand-orange opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 transition-all"></i>
+                        </div>
+                        
+                        <div class="group flex items-center gap-6 p-6 rounded-2xl bg-brand-beige hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border border-transparent hover:border-brand-orange/10">
+                            <span class="text-4xl font-display font-bold text-brand-orange/20 group-hover:text-brand-orange group-hover:scale-110 transition-all">02</span>
+                            <div>
+                                <h4 class="font-bold text-brand-dark text-lg mb-1">Communication</h4>
+                                <p class="text-sm text-brand-dark/50">Clear presentation and stakeholder management</p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right ml-auto text-brand-orange opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 transition-all"></i>
+                        </div>
+                        
+                        <div class="group flex items-center gap-6 p-6 rounded-2xl bg-brand-beige hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border border-transparent hover:border-brand-orange/10">
+                            <span class="text-4xl font-display font-bold text-brand-orange/20 group-hover:text-brand-orange group-hover:scale-110 transition-all">03</span>
+                            <div>
+                                <h4 class="font-bold text-brand-dark text-lg mb-1">Problem Solving</h4>
+                                <p class="text-sm text-brand-dark/50">Analytical logic meets creative solutions</p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right ml-auto text-brand-orange opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 transition-all"></i>
+                        </div>
+                        
+                        <div class="group flex items-center gap-6 p-6 rounded-2xl bg-brand-beige hover:bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border border-transparent hover:border-brand-orange/10">
+                            <span class="text-4xl font-display font-bold text-brand-orange/20 group-hover:text-brand-orange group-hover:scale-110 transition-all">04</span>
+                            <div>
+                                <h4 class="font-bold text-brand-dark text-lg mb-1">Continuous Improvement</h4>
+                                <p class="text-sm text-brand-dark/50">Always iterating and optimizing workflows</p>
+                            </div>
+                            <i class="fa-solid fa-arrow-right ml-auto text-brand-orange opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 transition-all"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section - Smaller Images (16/9 instead of 4/3) -->
+    <section id="projects" class="py-32 bg-brand-beige relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,107,53,0.1) 1px, transparent 0); background-size: 40px 40px;"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+                <div>
+                    <span class="text-brand-orange font-bold tracking-widest uppercase text-xs mb-4 block">Portfolio</span>
+                    <h2 class="text-4xl md:text-6xl font-display font-bold text-brand-dark">Selected Works</h2>
+                </div>
+                <a href="https://www.behance.net/12ac6ed2" target="_blank" class="text-sm font-bold text-brand-dark/50 hover:text-brand-orange transition-colors flex items-center gap-2 group">
+                    View All Projects 
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1: Nabta -->
+                <a href="https://www.behance.net/gallery/238652261/Nabta-UIUX-case-study" target="_blank" class="project-card group cursor-pointer block">
+                    <div class="project-image">
+                        <img src="https://mir-s3-cdn-cf.behance.net/projects/max_808/100810238652261.Y3JvcCwxMDIyLDc5OSwwLDA.jpg" alt="Nabta App" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                            <span class="bg-white text-brand-dark px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View on Behance</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold text-brand-orange uppercase tracking-widest">Agri-Tech</span>
+                            <span class="text-[10px] text-brand-dark/30">2025</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-brand-dark mb-2 group-hover:text-brand-orange transition-colors">Nabta App</h3>
+                        <p class="text-sm text-brand-dark/50 line-clamp-2">Agricultural management platform connecting farmers with modern technology solutions.</p>
+                    </div>
+                </a>
+
+                <!-- Project 2: Lebsa -->
+                <a href="https://www.behance.net/gallery/236265353/Lebsa" target="_blank" class="project-card group cursor-pointer block">
+                    <div class="project-image">
+                        <img src="cover.png" alt="Lebsa Fashion" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                            <span class="bg-white text-brand-dark px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View on Behance</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold text-brand-orange uppercase tracking-widest">E-Commerce</span>
+                            <span class="text-[10px] text-brand-dark/30">2025</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-brand-dark mb-2 group-hover:text-brand-orange transition-colors">Lebsa Fashion</h3>
+                        <p class="text-sm text-brand-dark/50 line-clamp-2">Modern fashion marketplace with immersive shopping experience and AR try-on.</p>
+                    </div>
+                </a>
+
+                <!-- Project 3: Responsive Designs -->
+                <a href="https://www.behance.net/gallery/236652813/Responsive-Designs" target="_blank" class="project-card group cursor-pointer block">
+                    <div class="project-image">
+                        <img src="ui-design.png" alt="Responsive Designs" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                            <span class="bg-white text-brand-dark px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">View on Behance</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold text-brand-orange uppercase tracking-widest">Web Design</span>
+                            <span class="text-[10px] text-brand-dark/30">2025</span>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-brand-dark mb-2 group-hover:text-brand-orange transition-colors">Responsive Designs</h3>
+                        <p class="text-sm text-brand-dark/50 line-clamp-2">Cross-platform design systems ensuring seamless experiences across all devices.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact/Footer Section -->
+    <footer id="contact" class="bg-brand-dark text-white relative overflow-hidden footer-section">
+        <!-- Large Background Text -->
+        <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+            <span class="text-[20vw] font-display font-bold text-white/[0.02] whitespace-nowrap select-none">LET'S TALK</span>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-32 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <h2 class="text-5xl md:text-7xl font-display font-bold leading-tight">
+                        Let's create<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-orange-light">a design.</span>
+                    </h2>
+                    
+                    <p class="text-white/50 text-lg max-w-md">
+                        Have a project in mind? Let's discuss how we can work together to bring your vision to life.
+                    </p>
+                    
+                    <div class="space-y-4 pt-4">
+                        <a href="mailto:ShahdSalah6161@gmail.com" class="group flex items-center gap-4 text-2xl md:text-3xl font-display font-bold hover:text-brand-orange transition-colors">
+                            <span class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors">
+                                <i class="fa-solid fa-envelope text-sm"></i>
+                            </span>
+                            ShahdSalah6161@gmail.com
+                        </a>
+                        
+                        <!-- <div class="flex items-center gap-4 text-white/50">
+                            <span class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center">
+                                <i class="fa-solid fa-phone text-sm"></i>
+                            </span>
+                            +20 106 576 6222
+                        </div> -->
+                        
+                        <div class="flex items-center gap-4 text-white/50">
+                            <span class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center">
+                                <i class="fa-solid fa-location-dot text-sm"></i>
+                            </span>
+                            Assiut, Egypt
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-start lg:items-end gap-6">
+                    <div class="flex gap-4">
+                        <!-- LinkedIn Linked -->
+                        <a href="https://www.linkedin.com/in/shahd-salah-a3bab8270/" target="_blank" class="group w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl hover:bg-brand-orange hover:border-brand-orange transition-all duration-300 hover:scale-110">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://www.behance.net/12ac6ed2" target="_blank" class="group w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl hover:bg-brand-orange hover:border-brand-orange transition-all duration-300 hover:scale-110">
+                            <i class="fa-brands fa-behance"></i>
+                        </a>
+                        <a href="#" class="group w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl hover:bg-brand-orange hover:border-brand-orange transition-all duration-300 hover:scale-110">
+                            <i class="fa-brands fa-dribbble"></i>
+                        </a>
+                        <a href="https://wa.me/201065766222" target="_blank" class="group w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl hover:bg-brand-orange hover:border-brand-orange transition-all duration-300 hover:scale-110">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="glass-card bg-white/5 backdrop-blur-lg p-8 rounded-3xl border border-white/10 max-w-sm w-full">
+                        <h4 class="font-bold text-lg mb-4">Quick Contact</h4>
+                        <form class="space-y-4" onsubmit="event.preventDefault(); alert('Message sent! (Demo only)');">
+                            <input type="email" placeholder="Your email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-orange transition-colors">
+                            <textarea placeholder="Your message" rows="3" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-orange transition-colors resize-none"></textarea>
+                            <button type="submit" class="w-full bg-brand-orange text-white py-3 rounded-xl font-bold text-sm hover:bg-brand-orange-light transition-colors">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 mt-20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-white/30 text-xs uppercase tracking-widest">© 2026 Shahd Salah. All rights reserved.</p>
+                <p class="text-white/30 text-xs uppercase tracking-widest">Designed & Built with passion</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Register GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Custom Cursor
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+            
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+            
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Cursor hover effects
+        document.querySelectorAll('a, button, .project-card, .skill-orb').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.style.width = '60px';
+                cursorOutline.style.height = '60px';
+                cursorOutline.style.backgroundColor = 'rgba(255, 107, 53, 0.1)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.style.width = '30px';
+                cursorOutline.style.height = '30px';
+                cursorOutline.style.backgroundColor = 'transparent';
+            });
+        });
+
+        // Scroll Progress
+        window.addEventListener('scroll', () => {
+            const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('scrollProgress').style.width = scrolled + '%';
+            
+            // Navbar background
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+            } else {
+                navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+            }
+        });
+
+        // Hero Animations
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            
+            tl.to('#heroName1', {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                ease: "power4.out"
+            })
+            .to('#heroName2', {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                ease: "power4.out"
+            }, "-=0.8")
+            .to('#heroSubtitle', {
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            }, "-=0.6")
+            .to('#heroDesc', {
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            }, "-=0.4")
+            .to('#heroButtons', {
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            }, "-=0.4")
+            .to('#heroStats', {
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            }, "-=0.4")
+            .from('#heroImage', {
+                scale: 0.8,
+                opacity: 0,
+                duration: 1.2,
+                ease: "power4.out"
+            }, "-=1");
+        });
+
+        // About Section Animation - Fixed
+        gsap.utils.toArray('.about-elem').forEach((elem, i) => {
+            gsap.from(elem, {
+                scrollTrigger: {
+                    trigger: '#about',
+                    start: 'top 75%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                delay: i * 0.15,
+                ease: "power3.out"
+            });
+        });
+
+        // About Lines Animation - Separate for the lines
+        gsap.utils.toArray('.about-line').forEach((line, i) => {
+            gsap.from(line, {
+                scrollTrigger: {
+                    trigger: '#aboutLines',
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                },
+                scaleX: 0,
+                duration: 0.6,
+                delay: 0.5 + (i * 0.1),
+                ease: "power3.out",
+                transformOrigin: "left center"
+            });
+        });
+
+        // Skills Animation
+        gsap.utils.toArray('.skill-orb').forEach((orb, i) => {
+            gsap.from(orb, {
+                scrollTrigger: {
+                    trigger: orb,
+                    start: 'top 85%',
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.6,
+                delay: i * 0.1,
+                ease: "power3.out"
+            });
+        });
+
+        // Projects Animation
+        gsap.utils.toArray('.project-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                },
+                y: 80,
+                opacity: 0,
+                duration: 0.8,
+                delay: i * 0.1,
+                ease: "power3.out"
+            });
+        });
+
+        // Parallax Effect for Hero Image
+        gsap.to('#heroImage', {
+            scrollTrigger: {
+                trigger: 'body',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: 1
+            },
+            y: 100,
+            ease: "none"
+        });
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+        });
+
+        closeMobileMenu.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full');
+            });
+        });
+
+        // Smooth Scroll for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Magnetic Button Effect
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)';
+            });
+        });
+    </script>
+</body>
+</html>
